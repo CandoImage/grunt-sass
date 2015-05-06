@@ -22,22 +22,22 @@ module.exports = function (grunt) {
 
 			sass.render(assign({}, opts, {
 				file: src,
-				outFile: el.dest,
-				success: function (res) {
-					grunt.file.write(el.dest, res.css);
+				outFile: el.dest
+			}), function(err, res) {
+        if (err) {
+          grunt.log.error(err.message + '\n  ' + 'Line ' + err.line + '  Column ' + err.column + '  ' + path.relative(process.cwd(), err.file) + '\n');
+          grunt.warn('');
+          return next(err);
+        }
+        
+        grunt.file.write(el.dest, res.css);
 
-					if (opts.sourceMap && !opts.sourceMapEmbed) {
-						grunt.file.write(opts.sourceMap === true ? (el.dest + '.map') : path.relative(process.cwd(), opts.sourceMap), res.map);
-					}
+        if (opts.sourceMap && !opts.sourceMapEmbed) {
+          grunt.file.write(opts.sourceMap === true ? (el.dest + '.map') : path.relative(process.cwd(), opts.sourceMap), res.map);
+        }
 
-					next();
-				},
-				error: function (err) {
-					grunt.log.error(err.message + '\n  ' + 'Line ' + err.line + '  Column ' + err.column + '  ' + path.relative(process.cwd(), err.file) + '\n');
-					grunt.warn('');
-					next(err);
-				}
-			}));
+        next();
+      });
 		}.bind(this), this.async());
 	});
 };

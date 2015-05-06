@@ -6,7 +6,7 @@ var sass = require('node-sass');
 
 module.exports = function (grunt) {
 	grunt.verbose.writeln('\n' + sass.info + '\n');
-	
+
 	grunt.registerMultiTask('sass', 'Compile Sass to CSS', function () {
 		eachAsync(this.files, function (el, i, next) {
 			var opts = this.options({
@@ -23,21 +23,22 @@ module.exports = function (grunt) {
 			sass.render(assign({}, opts, {
 				file: src,
 				outFile: el.dest
-			}), function(err, res) {
-        if (err) {
-          grunt.log.error(err.message + '\n  ' + 'Line ' + err.line + '  Column ' + err.column + '  ' + path.relative(process.cwd(), err.file) + '\n');
-          grunt.warn('');
-          return next(err);
-        }
-        
-        grunt.file.write(el.dest, res.css);
+			}), function (err, res) {
+				if (err) {
+					grunt.log.error(err.message + '\n  ' + 'Line ' + err.line + '  Column ' + err.column + '  ' + path.relative(process.cwd(), err.file) + '\n');
+					grunt.warn('');
+					next(err);
+					return;
+				}
 
-        if (opts.sourceMap && !opts.sourceMapEmbed) {
-          grunt.file.write(opts.sourceMap === true ? (el.dest + '.map') : path.relative(process.cwd(), opts.sourceMap), res.map);
-        }
+				grunt.file.write(el.dest, res.css);
 
-        next();
-      });
+				if (opts.sourceMap) {
+					grunt.file.write(this.options.sourceMap, res.map);
+				}
+
+				next();
+			});
 		}.bind(this), this.async());
 	});
 };
